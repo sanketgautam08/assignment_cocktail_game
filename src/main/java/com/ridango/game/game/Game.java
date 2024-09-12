@@ -34,6 +34,8 @@ public class Game {
             currentHighScore = Math.max(currentScore, currentHighScore);
             play = roundScore != 0 || continueGame();
         }
+        System.out.println("Highest score achieved: " + currentHighScore + "\n");
+        System.exit(0);
     }
 
     /**

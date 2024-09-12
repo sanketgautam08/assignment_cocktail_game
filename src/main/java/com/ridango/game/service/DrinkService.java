@@ -3,6 +3,8 @@ package com.ridango.game.service;
 import com.ridango.game.constants.AppConstants;
 import com.ridango.game.model.Drink;
 import com.ridango.game.repo.DrinkRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -15,6 +17,7 @@ public class DrinkService {
 
     private final RestTemplate restTemplate;
     private final DrinkRepository drinkRepository;
+    private final Logger LOGGER = LoggerFactory.getLogger(DrinkService.class);
 
 
     public DrinkService(RestTemplate restTemplate, DrinkRepository drinkRepository) {
@@ -39,10 +42,23 @@ public class DrinkService {
                 idDrink = newIdDrink;
                 strDrink = drinksJson.get("strDrink");
                 strInstructions = drinksJson.get("strInstructions");
+                LOGGER.info("New drink found!!");
+            }else{
+                LOGGER.info("Drink already exists. Trying to get another drink.");
             }
         }
         Drink newDrink = new Drink(idDrink, strDrink, strInstructions);
-        drinkRepository.save(newDrink);
+        boolean drinkSaved = false;
+        while(!drinkSaved){
+            try{
+                drinkRepository.save(newDrink);
+                LOGGER.info("New drink created and saved to db");
+                drinkSaved = true;
+            } catch (IllegalArgumentException e) {
+                LOGGER.error("Could not save new drink", e);
+            }
+        }
+
         return newDrink;
     }
 
